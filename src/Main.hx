@@ -66,13 +66,11 @@ class Main {
             var dX= to1.x - from1.x;
             var dY= to1.y - from1.y;
             var determinant = dX * (to2.y - from2.y) - (to2.x - from2.x) * dY;
-
-            if(determinant == 0) { return null; }
-
+            /* if(determinant == 0) { return null; } */
             var lambda = ((to2.y - from2.y) * (to2.x - from1.x) + (from2.x - to2.x) * (to2.y - from1.y)) / determinant;
             var gamma = ((from1.y - to1.y) * (to2.x - from1.x) + dX * (to2.y - from1.y)) / determinant;
 
-            if(!(0 <= lambda && lambda <= 1) || !(0 <= gamma && gamma <= 1)) { return null; }
+            if(lambda<0 || !(0 <= gamma && gamma <= 1)) { return null; }
 
             return lambda;
         }
@@ -81,10 +79,9 @@ class Main {
             walls[n] = [a, b, c, d, col];
         }
         inline function drawWalls() {
-            var farPlane = 500;
+            var farPlane = 1000;
             var wallH = 26;
             var hfov = Math.PI * 0.25;
-            var p = camPos;
             var d = halfSize / Math.tan(hfov);
 
             for(x in 0...screenSize) {
