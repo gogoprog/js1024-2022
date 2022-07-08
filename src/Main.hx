@@ -20,9 +20,18 @@ class Main {
         var camPos:Point = {x:400, y:300};
         var camAngle:Float = 0;
         var keys:Dynamic = {};
-        var startMx:Int;
-        var startAngle:Float;
-        var mx:Int;
+        var mx:Int = 0;
+        var textureCanvas:js.html.CanvasElement = cast js.Browser.document.createElement("canvas");
+        {
+            textureCanvas.width = textureCanvas.height = 64;
+            var textureContext = textureCanvas.getContext("2d");
+            textureContext.fillStyle = '#fbb';
+            textureContext.fillRect(0, 0, 64, 64);
+            textureContext.fillStyle = 'red';
+            textureContext.fillRect(3, 3, 58, 28);
+            textureContext.fillRect(3, 33, 28, 28);
+            textureContext.fillRect(33, 33, 28, 28);
+        }
         function random():Float {
             var x = (Math.sin(randomSeed++) + 1) * 99;
             return x - Std.int(x);
@@ -36,21 +45,10 @@ class Main {
         function drawRect(x:Float, y:Float, w:Float, h:Float) {
             Shim.context.fillRect(x, y, w, h);
         }
-        untyped onmousemove = onmousedown = function(e) {
+        untyped onmousemove = function(e) {
             mx = e.clientX;
 
             if(e.buttons & 1) {
-            }
-
-            if(e.buttons & 2) {
-                e.preventDefault();
-
-                if(startMx == null) {
-                    startMx = mx;
-                    startAngle = camAngle;
-                }
-            } else {
-                startMx = null;
             }
         }
         untyped onkeydown = onkeyup = function(e) {
@@ -63,8 +61,8 @@ class Main {
             Shim.context.fill();
         }
         inline function segmentToSegmentIntersection(from1:Point, to1:Point, from2:Point, to2:Point) {
-            var dX= to1.x - from1.x;
-            var dY= to1.y - from1.y;
+            var dX = to1.x - from1.x;
+            var dY = to1.y - from1.y;
             var determinant = dX * (to2.y - from2.y) - (to2.x - from2.x) * dY;
             /* if(determinant == 0) { return null; } */
             var lambda = ((to2.y - from2.y) * (to2.x - from1.x) + (from2.x - to2.x) * (to2.y - from1.y)) / determinant;
@@ -72,7 +70,7 @@ class Main {
 
             if(lambda<0 || !(0 <= gamma && gamma <= 1)) { return null; }
 
-            return lambda;
+            return [lambda, gamma];
         }
         inline function addWall(a, b, c, d, col:String) {
             var n = walls.length;
@@ -92,6 +90,7 @@ class Main {
                 var camTarget = {x:camPos.x+dx, y:camPos.y+dy};
                 var best = null;
                 var bestDistance = 100000.0;
+                var bestGamma:Float = 0;
 
                 for(w in walls) {
                     var a = {x:w[0], y:w[1]};
@@ -99,19 +98,22 @@ class Main {
                     var r = segmentToSegmentIntersection(camPos, camTarget, a, b);
 
                     if(r != null) {
-                        var f = Math.cos(a2) * r;
+                        var f = Math.cos(a2) * r[0];
 
                         if(f<bestDistance) {
                             bestDistance = f;
                             best = w;
+                            bestGamma = r[1];
                         }
                     }
                 }
 
                 if(best != null) {
                     var h = (screenSize / wallH) / bestDistance;
-                    col(best[4]);
-                    drawRect(x, halfSize - h/2, 1, h);
+                    var tx = Std.int(bestGamma * 1000) % 64;
+                    //drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
+                    Shim.context.drawImage(textureCanvas, tx, 0, 1, 64, x, halfSize - h/2, 1, h);
+                    /* drawRect(x, halfSize - h/2, 1, h); */
                 }
             }
         }
@@ -144,11 +146,7 @@ class Main {
                 camPos.y += dir.y * move.y * s;
                 camPos.x += lat.x * move.x * s;
                 camPos.y += lat.y * move.x * s;
-
-                if(untyped startMx) {
-                    var delta = mx - startMx;
-                    camAngle = startAngle + delta * 0.01;
-                }
+                camAngle = mx * 0.02;
             }
             // rendering
             {
@@ -162,11 +160,11 @@ class Main {
             }
             untyped requestAnimationFrame(loop);
         }
-        addWall(128, 64, 50, 100, 'red');
-        addWall(300, 128, 50, 50, 'white');
-        addWall(64, 300, 10, 500, 'blue');
-        addWall(64, 300, 500, 10, 'green');
-        addWall(200, 400, 500, 10, 'yellow');
+        addWall(128, 64, 50, 100, '#f00');
+        addWall(300, 128, 50, 50, '#0f0');
+        addWall(64, 300, 10, 500, '#00f');
+        addWall(64, 300, 500, 10, '#fff');
+        addWall(200, 400, 500, 10, '#0ff');
         loop(0);
     }
 }
