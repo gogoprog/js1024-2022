@@ -25,12 +25,12 @@ class Main {
         {
             textureCanvas.width = textureCanvas.height = 64;
             var textureContext = textureCanvas.getContext("2d");
-            textureContext.fillStyle = '#fbb';
+            textureContext.fillStyle = '#caa';
             textureContext.fillRect(0, 0, 64, 64);
-            textureContext.fillStyle = 'red';
-            textureContext.fillRect(3, 3, 58, 28);
-            textureContext.fillRect(3, 33, 28, 28);
-            textureContext.fillRect(33, 33, 28, 28);
+            textureContext.fillStyle = '#a22';
+            textureContext.fillRect(2, 2, 62, 30);
+            textureContext.fillRect(0, 34, 30, 30);
+            textureContext.fillRect(32, 34, 32, 30);
         }
         function random():Float {
             var x = (Math.sin(randomSeed++) + 1) * 99;
@@ -42,7 +42,7 @@ class Main {
         function alpha(n) {
             Shim.context.globalAlpha = n;
         }
-        function drawRect(x:Float, y:Float, w:Float, h:Float) {
+        inline function drawRect(x:Float, y:Float, w:Float, h:Float) {
             Shim.context.fillRect(x, y, w, h);
         }
         untyped onmousemove = function(e) {
@@ -72,9 +72,10 @@ class Main {
 
             return [lambda, gamma];
         }
-        inline function addWall(a, b, c, d, col:String) {
+        inline function addWall(a, b, c, d) {
             var n = walls.length;
-            walls[n] = [a, b, c, d, col];
+            var len = Math.sqrt((c-a)*(c-a)+(d-b)*(d-b));
+            walls[n] = [a, b, c, d, len];
         }
         inline function drawWalls() {
             var farPlane = 1000;
@@ -110,7 +111,7 @@ class Main {
 
                 if(best != null) {
                     var h = (screenSize / wallH) / bestDistance;
-                    var tx = Std.int(bestGamma * 1000) % 64;
+                    var tx = Std.int(bestGamma * best[4]) % 64;
                     //drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
                     Shim.context.drawImage(textureCanvas, tx, 0, 1, 64, x, halfSize - h/2, 1, h);
                     /* drawRect(x, halfSize - h/2, 1, h); */
@@ -150,8 +151,6 @@ class Main {
             }
             // rendering
             {
-                col('#000');
-                drawRect(0, 0, screenSize, screenSize);
                 col('#88f');
                 drawRect(0, 0, screenSize, halfSize);
                 col('#666');
@@ -160,11 +159,11 @@ class Main {
             }
             untyped requestAnimationFrame(loop);
         }
-        addWall(128, 64, 50, 100, '#f00');
-        addWall(300, 128, 50, 50, '#0f0');
-        addWall(64, 300, 10, 500, '#00f');
-        addWall(64, 300, 500, 10, '#fff');
-        addWall(200, 400, 500, 10, '#0ff');
+        addWall(128, 64, 50, 100);
+        addWall(300, 128, 50, 50);
+        addWall(64, 300, 10, 500);
+        addWall(64, 300, 500, 10);
+        addWall(200, 400, 500, 10);
         loop(0);
     }
 }
