@@ -19,18 +19,18 @@ class Main {
         var halfSize:Int = cast screenSize/ 2;
         var camPos:Point = {x:400, y:300};
         var camAngle:Float = 0;
-        var keys:Dynamic = {};
+        /* var keys:Dynamic = {}; */
         var mx:Int = 0;
+        var mmove:Int = 0;
         var textureCanvas:js.html.CanvasElement = cast js.Browser.document.createElement("canvas");
         {
             textureCanvas.width = textureCanvas.height = 64;
             var textureContext = textureCanvas.getContext("2d");
-            textureContext.fillStyle = '#caa';
             textureContext.fillRect(0, 0, 64, 64);
             textureContext.fillStyle = '#a22';
             textureContext.fillRect(2, 2, 62, 30);
-            textureContext.fillRect(0, 34, 30, 30);
-            textureContext.fillRect(32, 34, 32, 30);
+            textureContext.fillRect(0, 34, 30, 29);
+            textureContext.fillRect(32, 34, 32, 29);
         }
         function random():Float {
             var x = (Math.sin(randomSeed++) + 1) * 99;
@@ -45,15 +45,13 @@ class Main {
         inline function drawRect(x:Float, y:Float, w:Float, h:Float) {
             Shim.context.fillRect(x, y, w, h);
         }
-        untyped onmousemove = function(e) {
+        untyped onmousemove = onmousedown = onmouseup = function(e) {
             mx = e.clientX;
-
-            if(e.buttons & 1) {
-            }
+            mmove = (e.buttons & 2);
         }
-        untyped onkeydown = onkeyup = function(e) {
-            keys[e.key] = e.type == 'keydown';
-        }
+        /* untyped onkeydown = onkeyup = function(e) { */
+        /*     keys[e.key] = e.type[3] == 'd'; */
+        /* } */
         Shim.canvas.oncontextmenu = e -> false;
         function drawCircle(x, y, r) {
             Shim.context.beginPath();
@@ -98,7 +96,7 @@ class Main {
                     var b = {x:w[2], y:w[3]};
                     var r = segmentToSegmentIntersection(camPos, camTarget, a, b);
 
-                    if(r != null) {
+                    if(untyped r) {
                         var f = Math.cos(a2) * r[0];
 
                         if(f<bestDistance) {
@@ -123,30 +121,27 @@ class Main {
             {
                 var a = camAngle;
                 var dir = {x:Math.cos(a), y:Math.sin(a)};
-                var lat = {x:Math.cos(a + Math.PI/2), y:Math.sin(a + Math.PI/2)};
-                var move = {x:0, y:0};
-
-                if(untyped keys['w']) {
-                    move.y = 1;
-                }
-
-                if(untyped keys['s']) {
-                    move.y = -1;
-                }
-
-                if(untyped keys['d']) {
-                    move.x = 1;
-                }
-
-                if(untyped keys['a']) {
-                    move.x = -1;
-                }
-
+                /* var lat = {x:Math.cos(a + Math.PI/2), y:Math.sin(a + Math.PI/2)}; */
+                /* var move = {x:0, y:0}; */
+                /* if(untyped keys['w']) { */
+                /*     move.y = 1; */
+                /* } */
+                /* if(untyped keys['s']) { */
+                /*     move.y = -1; */
+                /* } */
+                /* if(untyped keys['d']) { */
+                /*     move.x = 1; */
+                /* } */
+                /* if(untyped keys['a']) { */
+                /*     move.x = -1; */
+                /* } */
                 var s = 4;
-                camPos.x += dir.x * move.y * s;
-                camPos.y += dir.y * move.y * s;
-                camPos.x += lat.x * move.x * s;
-                camPos.y += lat.y * move.x * s;
+                /* camPos.x += dir.x * move.y * s; */
+                /* camPos.y += dir.y * move.y * s; */
+                /* camPos.x += lat.x * move.x * s; */
+                /* camPos.y += lat.y * move.x * s; */
+                camPos.x += dir.x * mmove * s;
+                camPos.y += dir.y * mmove * s;
                 camAngle = mx * 0.02;
             }
             // rendering
@@ -159,11 +154,22 @@ class Main {
             }
             untyped requestAnimationFrame(loop);
         }
-        addWall(128, 64, 50, 100);
-        addWall(300, 128, 50, 50);
-        addWall(64, 300, 10, 500);
-        addWall(64, 300, 500, 10);
-        addWall(200, 400, 500, 10);
+        {
+            var points = [
+                             [0, 0],
+                             [9, 0],
+                             [9, 9],
+                             [0, 9],
+                         ];
+            var len = points.length;
+            var f = 30;
+
+            for(p in 0...len) {
+                var a = points[p];
+                var b = points[(p+1)%len];
+                addWall(a[0]*f, a[1]*f, b[0]*f, b[1]*f);
+            }
+        }
         loop(0);
     }
 }
