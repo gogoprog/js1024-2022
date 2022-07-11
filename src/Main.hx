@@ -78,8 +78,9 @@ class Main {
         inline function drawWalls() {
             var farPlane = 1000;
             var wallH = 26;
-            var hfov = Math.PI * 0.25;
-            var d = halfSize / Math.tan(hfov);
+            /* var hfov = Math.PI * 0.25; */
+            /* var d = halfSize / Math.tan(hfov); */
+            var d = 256;
 
             for(x in 0...screenSize) {
                 var a2 = Math.atan2(x - halfSize, d);
@@ -153,6 +154,7 @@ class Main {
                 drawWalls();
             }
             untyped requestAnimationFrame(loop);
+            /* untyped setTimeout(loop, 16); */
         }
         {
             var points = [
