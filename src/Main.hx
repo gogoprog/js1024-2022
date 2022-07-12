@@ -22,7 +22,7 @@ class Main {
         /* var keys:Dynamic = {}; */
         var mx:Int = 0;
         var mmove:Int = 0;
-        var textureCanvas:js.html.CanvasElement = cast js.Browser.document.createElement("canvas");
+        var textureCanvas:js.html.CanvasElement = untyped document.createElement("canvas");
         {
             textureCanvas.width = textureCanvas.height = 64;
             var textureContext = textureCanvas.getContext("2d");
@@ -31,12 +31,16 @@ class Main {
             textureContext.fillRect(2, 2, 62, 30);
             textureContext.fillRect(0, 34, 30, 29);
             textureContext.fillRect(32, 34, 32, 29);
+            /* var pattern = textureContext.createPattern(textureCanvas, 'repeat'); */
+            /* textureCanvas.width = textureCanvas.height = 256; */
+            /* textureContext.fillStyle = pattern; */
+            /* textureContext.fillRect(0, 0, 256, 256); */
         }
         function random():Float {
             var x = (Math.sin(randomSeed++) + 1) * 99;
             return x - Std.int(x);
         }
-        function col(n:Dynamic) {
+        inline function col(n : Dynamic) {
             Shim.context.fillStyle = n;
         }
         function alpha(n) {
@@ -49,10 +53,13 @@ class Main {
             mx = e.clientX;
             mmove = (e.buttons & 2);
         }
+        /* untyped onmousemove = function(e) { */
+        /*     mx = e.clientX; */
+        /* } */
         /* untyped onkeydown = onkeyup = function(e) { */
         /*     keys[e.key] = e.type[3] == 'd'; */
         /* } */
-        Shim.canvas.oncontextmenu = e -> false;
+        Shim.canvas.oncontextmenu = e->false;
         function drawCircle(x, y, r) {
             Shim.context.beginPath();
             Shim.context.arc(x, y, r, 0, 7);
@@ -143,33 +150,45 @@ class Main {
                 /* camPos.y += lat.y * move.x * s; */
                 camPos.x += dir.x * mmove * s;
                 camPos.y += dir.y * mmove * s;
-                camAngle = mx * 0.02;
+                camAngle = mx * 0.04;
             }
             // rendering
             {
-                col('#88f');
-                drawRect(0, 0, screenSize, halfSize);
                 col('#666');
+                drawRect(0, 0, screenSize, halfSize);
+                col('#999');
                 drawRect(0, halfSize, screenSize, halfSize);
                 drawWalls();
+                /* col('#841'); */
+                /* drawRect(halfSize - 12, screenSize * 0.96, 24, screenSize); */
+                /* col('#222'); */
+                /* drawRect(halfSize - 8, screenSize * 0.95, 16, screenSize); */
             }
             untyped requestAnimationFrame(loop);
             /* untyped setTimeout(loop, 16); */
         }
         {
             var points = [
-                             [0, 0],
-                             [9, 0],
-                             [9, 9],
-                             [0, 9],
+                             [ 0, 0 ],
+                             [ 9, 0 ],
+                             [ 9, 9 ],
+                             [ 8, 9 ],
+                             [ 8, 4 ],
+                             [ 3, 4 ],
+                             [ 3, 6 ],
+                             [ 7, 6 ],
+                             [ 7, 7 ],
+                             [ 2, 7 ],
+                             [ 2, 9 ],
+                             [ 0, 9 ],
                          ];
             var len = points.length;
-            var f = 30;
+            var f = 100;
 
             for(p in 0...len) {
                 var a = points[p];
-                var b = points[(p+1)%len];
-                addWall(a[0]*f, a[1]*f, b[0]*f, b[1]*f);
+                var b = points[(p + 1) % len];
+                addWall(a[0] * f, a[1] * f, b[0] * f, b[1] * f);
             }
         }
         loop(0);
