@@ -4,9 +4,13 @@ extern class Shim {
     @:native("c") static var context:js.html.CanvasRenderingContext2D;
 }
 
-typedef Point = {
-    var x:Float;
-    var y:Float;
+abstract Point(Array<Float>) from Array<Float> to Array<Float> {
+    public var x(get, set):Float;
+    inline function get_x() return this[0];
+    inline function set_x(value) return this[0] = value;
+    public var y(get, set):Float;
+    inline function get_y() return this[1];
+    inline function set_y(value) return this[1] = value;
 }
 
 class Main {
@@ -17,7 +21,7 @@ class Main {
         var time:Int = 0;
         var walls:Array<Dynamic> = [];
         var halfSize:Int = cast screenSize/ 2;
-        var camPos:Point = {x:400, y:300};
+        var camPos:Point = [512, 512];
         var camAngle:Float = 0;
         /* var keys:Dynamic = {}; */
         var mx:Int = 0;
@@ -65,7 +69,7 @@ class Main {
             Shim.context.arc(x, y, r, 0, 7);
             Shim.context.fill();
         }
-        inline function segmentToSegmentIntersection(from1:Point, to1:Point, from2:Point, to2:Point) {
+        function segmentToSegmentIntersection(from1:Point, to1:Point, from2:Point, to2:Point) {
             var dX = to1.x - from1.x;
             var dY = to1.y - from1.y;
             var determinant = dX * (to2.y - from2.y) - (to2.x - from2.x) * dY;
@@ -94,14 +98,14 @@ class Main {
                 var a = camAngle + a2;
                 var dx = Math.cos(a) * farPlane;
                 var dy = Math.sin(a) * farPlane;
-                var camTarget = {x:camPos.x+dx, y:camPos.y+dy};
+                var camTarget = [camPos[0]+dx, camPos[1]+dy];
                 var best = null;
                 var bestDistance = 100000.0;
                 var bestGamma:Float = 0;
 
                 for(w in walls) {
-                    var a = {x:w[0], y:w[1]};
-                    var b = {x:w[2], y:w[3]};
+                    var a = [w[0],w[1]];
+                    var b = [w[2],w[3]];
                     var r = segmentToSegmentIntersection(camPos, camTarget, a, b);
 
                     if(untyped r) {
@@ -128,7 +132,7 @@ class Main {
             // controls
             {
                 var a = camAngle;
-                var dir = {x:Math.cos(a), y:Math.sin(a)};
+                var dir:Point = [Math.cos(a), Math.sin(a)];
                 /* var lat = {x:Math.cos(a + Math.PI/2), y:Math.sin(a + Math.PI/2)}; */
                 /* var move = {x:0, y:0}; */
                 /* if(untyped keys['w']) { */
@@ -148,19 +152,17 @@ class Main {
                 /* camPos.y += dir.y * move.y * s; */
                 /* camPos.x += lat.x * move.x * s; */
                 /* camPos.y += lat.y * move.x * s; */
-                var prevPos = {x:camPos.x, y:camPos.y};
+                var prevPos = [camPos.x, camPos.y];
                 camPos.x += dir.x * mmove * s;
                 camPos.y += dir.y * mmove * s;
                 camAngle = mx * 0.04;
 
                 for(w in walls) {
-                    var a = {x:w[0], y:w[1]};
-                    var b = {x:w[2], y:w[3]};
+                    var a = [w[0],w[1]];
+                    var b = [w[2],w[3]];
                     var r = segmentToSegmentIntersection(prevPos, camPos, a, b);
 
                     if(untyped r && r[0] < 1) {
-                        /* trace("coll"); */
-                        /* trace(r); */
                         camPos = prevPos;
                     }
                 }
