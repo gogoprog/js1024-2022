@@ -14,14 +14,14 @@ abstract Point(Array<Float>) from Array<Float> to Array<Float> {
 }
 
 class Main {
-    static inline var screenSize = 512;
     static function main() {
+        var screenSize = 512;
+        var halfSize:Int = cast screenSize/ 2;
         Shim.canvas.width = Shim.canvas.height = screenSize;
         var randomSeed = 0;
         var time:Int = 0;
         var walls:Array<Dynamic> = [];
-        var halfSize:Int = cast screenSize/ 2;
-        var camPos:Point = [512, 512];
+        var camPos:Point = [screenSize, screenSize];
         var camAngle:Float = 0;
         /* var keys:Dynamic = {}; */
         var mx:Int = 0;
@@ -40,15 +40,8 @@ class Main {
             /* textureContext.fillStyle = pattern; */
             /* textureContext.fillRect(0, 0, 256, 256); */
         }
-        function random():Float {
-            var x = (Math.sin(randomSeed++) + 1) * 99;
-            return x - Std.int(x);
-        }
         inline function col(n : Dynamic) {
             Shim.context.fillStyle = n;
-        }
-        function alpha(n) {
-            Shim.context.globalAlpha = n;
         }
         inline function drawRect(x:Float, y:Float, w:Float, h:Float) {
             Shim.context.fillRect(x, y, w, h);
@@ -64,11 +57,6 @@ class Main {
         /*     keys[e.key] = e.type[3] == 'd'; */
         /* } */
         /* Shim.canvas.oncontextmenu = e->false; */
-        function drawCircle(x, y, r) {
-            Shim.context.beginPath();
-            Shim.context.arc(x, y, r, 0, 7);
-            Shim.context.fill();
-        }
         function segmentToSegmentIntersection(from1:Point, to1:Point, from2:Point, to2:Point) {
             var dX = to1.x - from1.x;
             var dY = to1.y - from1.y;
@@ -81,14 +69,13 @@ class Main {
 
             return [lambda, gamma];
         }
-        inline function addWall(a, b, c, d) {
+        inline function addWall(a:Float, b:Float, c:Float, d:Float, len:Float) {
             var n = walls.length;
-            var len = Math.sqrt((c-a)*(c-a)+(d-b)*(d-b));
-            walls[n] = [a, b, c, d, len];
+            /* var len = Math.sqrt((c-a)*(c-a)+(d-b)*(d-b)); */
+            walls[n] = [[a* 100, b * 100], [c * 100, d * 100], len * 100];
         }
         inline function drawWalls() {
-            var farPlane = 1000;
-            var wallH = 26;
+            var wallH = 32;
             /* var hfov = Math.PI * 0.25; */
             /* var d = halfSize / Math.tan(hfov); */
             var d = 256;
@@ -96,17 +83,15 @@ class Main {
             for(x in 0...screenSize) {
                 var a2 = Math.atan2(x - halfSize, d);
                 var a = camAngle + a2;
-                var dx = Math.cos(a) * farPlane;
-                var dy = Math.sin(a) * farPlane;
+                var dx = Math.cos(a) * 1024;
+                var dy = Math.sin(a) * 1024;
                 var camTarget = [camPos[0]+dx, camPos[1]+dy];
                 var best = null;
                 var bestDistance = 100000.0;
                 var bestGamma:Float = 0;
 
                 for(w in walls) {
-                    var a = [w[0],w[1]];
-                    var b = [w[2],w[3]];
-                    var r = segmentToSegmentIntersection(camPos, camTarget, a, b);
+                    var r = segmentToSegmentIntersection(camPos, camTarget, w[0], w[1]);
 
                     if(untyped r) {
                         var f = Math.cos(a2) * r[0];
@@ -121,7 +106,7 @@ class Main {
 
                 if(best != null) {
                     var h = (screenSize / wallH) / bestDistance;
-                    var tx = Std.int(bestGamma * best[4]) % 64;
+                    var tx = Std.int(bestGamma * best[2]) % 64;
                     //drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
                     Shim.context.drawImage(textureCanvas, tx, 0, 1, 64, x, halfSize - h/2, 1, h);
                     /* drawRect(x, halfSize - h/2, 1, h); */
@@ -153,14 +138,12 @@ class Main {
                 /* camPos.x += lat.x * move.x * s; */
                 /* camPos.y += lat.y * move.x * s; */
                 var prevPos = [camPos.x, camPos.y];
-                camPos.x += dir.x * mmove * s;
-                camPos.y += dir.y * mmove * s;
+                camPos.x += dir.x * mmove * 6;
+                camPos.y += dir.y * mmove * 6;
                 camAngle = mx * 0.04;
 
                 for(w in walls) {
-                    var a = [w[0],w[1]];
-                    var b = [w[2],w[3]];
-                    var r = segmentToSegmentIntersection(prevPos, camPos, a, b);
+                    var r = segmentToSegmentIntersection(prevPos, camPos, w[0], w[1]);
 
                     if(untyped r && r[0] < 1) {
                         camPos = prevPos;
@@ -178,33 +161,31 @@ class Main {
                 /* drawRect(halfSize - 12, screenSize * 0.96, 24, screenSize); */
                 /* col('#222'); */
                 /* drawRect(halfSize - 8, screenSize * 0.95, 16, screenSize); */
+                Shim.context.fillText(":)", 0, 32);
             }
             untyped requestAnimationFrame(loop);
             /* untyped setTimeout(loop, 16); */
         }
         {
-            var points = [
-                             [ 0, 0 ],
-                             [ 9, 0 ],
-                             [ 9, 9 ],
-                             [ 8, 9 ],
-                             [ 8, 4 ],
-                             [ 3, 4 ],
-                             [ 3, 6 ],
-                             [ 7, 6 ],
-                             [ 7, 7 ],
-                             [ 2, 7 ],
-                             [ 2, 9 ],
-                             [ 0, 9 ],
-                         ];
-            var len = points.length;
-            var f = 100;
-
-            for(p in 0...len) {
-                var a = points[p];
-                var b = points[(p + 1) % len];
-                addWall(a[0] * f, a[1] * f, b[0] * f, b[1] * f);
-            }
+            /* addWall(0, 0, 9, 0, 9); */
+            /* addWall(0, 0, 0, 9, 9); */
+            /* addWall(0, 9, 9, 9, 9); */
+            /* addWall(9, 0, 9, 9, 9); */
+            // T
+            addWall(0, 0, 9, 4, 9);
+            addWall(9, 4, 6, 4, 3);
+            addWall(6, 9, 6, 4, 5);
+            addWall(6, 9, 4, 9, 2);
+            addWall(4, 4, 4, 9, 5);
+            addWall(4, 4, -12, 4, 16);
+            addWall(-12, 3, -12, 4, 1);
+            addWall(-12, 3, 0, 3, 12);
+            addWall(0, 0, 0, 3, 3);
+            /* // Pillar */
+            /* addWall(1, 1, 8, 1, 7); */
+            /* addWall(8, 2, 8, 1, 1); */
+            /* addWall(8, 2, 1, 2, 7); */
+            /* addWall(1, 1, 1, 2, 1); */
         }
         loop(0);
     }
