@@ -148,9 +148,22 @@ class Main {
                 /* camPos.y += dir.y * move.y * s; */
                 /* camPos.x += lat.x * move.x * s; */
                 /* camPos.y += lat.y * move.x * s; */
+                var prevPos = {x:camPos.x, y:camPos.y};
                 camPos.x += dir.x * mmove * s;
                 camPos.y += dir.y * mmove * s;
                 camAngle = mx * 0.04;
+
+                for(w in walls) {
+                    var a = {x:w[0], y:w[1]};
+                    var b = {x:w[2], y:w[3]};
+                    var r = segmentToSegmentIntersection(prevPos, camPos, a, b);
+
+                    if(r != null && r[0] < 1) {
+                        /* trace("coll"); */
+                        /* trace(r); */
+                        camPos = prevPos;
+                    }
+                }
             }
             // rendering
             {
