@@ -26,20 +26,23 @@ class Main {
         /* var keys:Dynamic = {}; */
         var mx:Int = 0;
         var mmove:Int = 0;
-        var textureCanvas:js.html.CanvasElement = untyped document.createElement("canvas");
-        {
+        var textureCanvas:js.html.CanvasElement;
+        inline function createTexture() {
+            textureCanvas = untyped document.createElement("canvas");
             textureCanvas.width = textureCanvas.height = 64;
             var textureContext = textureCanvas.getContext("2d");
             textureContext.fillRect(0, 0, 64, 64);
             textureContext.fillStyle = '#a22';
             textureContext.fillRect(2, 2, 62, 30);
             textureContext.fillRect(0, 34, 30, 29);
-            textureContext.fillRect(32, 34, 32, 29);
+            textureContext.fillRect(32, 50, 32, 13);
+            /* textureContext.fillText('Hey!', 32, 44); */
             /* var pattern = textureContext.createPattern(textureCanvas, 'repeat'); */
             /* textureCanvas.width = textureCanvas.height = 256; */
             /* textureContext.fillStyle = pattern; */
             /* textureContext.fillRect(0, 0, 256, 256); */
         }
+        createTexture();
         inline function col(n : Dynamic) {
             Shim.context.fillStyle = n;
         }
@@ -140,7 +143,7 @@ class Main {
                 var prevPos = [camPos.x, camPos.y];
                 camPos.x += dir.x * mmove * 6;
                 camPos.y += dir.y * mmove * 6;
-                camAngle = mx * 0.04;
+                camAngle = mx / 32;//* 0.04;
 
                 for(w in walls) {
                     var r = segmentToSegmentIntersection(prevPos, camPos, w[0], w[1]);
@@ -161,10 +164,13 @@ class Main {
                 /* drawRect(halfSize - 12, screenSize * 0.96, 24, screenSize); */
                 /* col('#222'); */
                 /* drawRect(halfSize - 8, screenSize * 0.95, 16, screenSize); */
-                Shim.context.fillText(":)", 0, 32);
+
+                if(camPos.x < -1100) {
+                    Shim.context.fillText("WIN !", 32, 32);
+                }
             }
-            untyped requestAnimationFrame(loop);
-            /* untyped setTimeout(loop, 16); */
+            /* untyped requestAnimationFrame(loop); */
+            untyped setTimeout(loop, 10);
         }
         {
             /* addWall(0, 0, 9, 0, 9); */
