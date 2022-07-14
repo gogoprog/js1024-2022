@@ -51,7 +51,7 @@ class Main {
         }
         untyped onmousemove = onmousedown = onmouseup = function(e) {
             mx = e.clientX;
-            mmove = (e.buttons & 2);
+            mmove = (e.buttons);
         }
         /* untyped onmousemove = function(e) { */
         /*     mx = e.clientX; */
@@ -59,7 +59,7 @@ class Main {
         /* untyped onkeydown = onkeyup = function(e) { */
         /*     keys[e.key] = e.type[3] == 'd'; */
         /* } */
-        Shim.canvas.oncontextmenu = e->false;
+        /* Shim.canvas.oncontextmenu = e->false; */
         function drawCircle(x, y, r) {
             Shim.context.beginPath();
             Shim.context.arc(x, y, r, 0, 7);
@@ -158,7 +158,7 @@ class Main {
                     var b = {x:w[2], y:w[3]};
                     var r = segmentToSegmentIntersection(prevPos, camPos, a, b);
 
-                    if(r != null && r[0] < 1) {
+                    if(untyped r && r[0] < 1) {
                         /* trace("coll"); */
                         /* trace(r); */
                         camPos = prevPos;

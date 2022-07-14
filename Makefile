@@ -13,6 +13,11 @@ build: compile
 	cat temp/main.js >> build/index.html
 	cat src/after.html >> build/index.html
 
+minify:
+	terser --compress unsafe_arrows=true,unsafe=true,toplevel=true,passes=8 --mangle --mangle-props --toplevel --ecma 6 -O ascii_only=true -- temp/main.js > temp/main.min.js
+	regpack temp/main.min.js > temp/main.min.regpack.js
+	stat temp/main.min.regpack.js | grep Size
+
 retail: compile
 	mkdir -p retail
 	terser --compress unsafe_arrows=true,unsafe=true,toplevel=true,passes=8 --mangle --mangle-props --toplevel --ecma 6 -O ascii_only=true -- temp/main.js > temp/main.min.js
