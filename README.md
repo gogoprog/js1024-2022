@@ -1,4 +1,6 @@
-# Unnamed fps
+# Maze3D
+
+![Demo](https://github.com/gogoprog/js1024-2022/raw/master/demo.gif)
 
 ## JS1024
 
